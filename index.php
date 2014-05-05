@@ -35,7 +35,7 @@ include_once "header.php";
 //Initial Setup for variables
 proceed=0;
 loggedin=false;
-user_name="Not set",user_email="Not Set";
+user_name="Not set",user_email="Not Set",FBapi='';
 window.fbAsyncInit = function() {
     FB.init({
     appId      : '1444118979163499', // replace your app id here
@@ -48,7 +48,7 @@ window.fbAsyncInit = function() {
 (function(d){
     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
     if (d.getElementById(id)) {return;}
-    js = d.createElement('script'); js.id = id; js.async = true;
+    js = d.createElement('script'); js.id = id; js.async = false;
     js.src = "//connect.facebook.net/en_US/all.js";
     ref.parentNode.insertBefore(js, ref);
 }(document));
@@ -58,24 +58,27 @@ function FBLogin(){
   FB.getLoginStatus(function(response){
   	if(response.authResponse){
   		loggedin=true;
-  		proceed=1;  		
+  		$("#Connect_with_facebook").fadeOut(400);
+		fetch_username_and_email(); 
+
   	}
   });
 
  if(loggedin==false){
    	FB.login(function(response){
         if(response.authResponse){
-          proceed=1; 
+		$("#Connect_with_facebook").fadeOut(400);
+		fetch_username_and_email(); 
         }
+    	else{
+			alert("Error Logging in");
+			 $("#loading").hide();
+
+    	}
     },{scope:'email'});
 
 					}
-if(proceed=1){
-	$("#Connect_with_facebook").fadeOut(400);
-	fetch_username_and_email();
-}
-else
-	alert("Error Logging in");
+
 }
 </script>
 
@@ -604,7 +607,7 @@ else
         </p>
       </div>
       <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal" style="float: right;">Close</a>
+        <a href="#" class="btn" data-dismiss="modal" style="float: right;" >Close</a>
       </div>
     </div>
 
@@ -628,33 +631,25 @@ else
         });
 
         function fetch_username_and_email(){
-         
-         $.ajax({
-          type:'GET',
-          url:'facebook/fetch_details_to_show.php?info=user_name',
-          async:false
-         }).done(function(data){
-          user_name=data;
-         });
-        
-        
-         $.ajax({
-          type:'GET',
-          url:'facebook/fetch_details_to_show.php?info=user_email',
-          async:false
-         }).done(function(data){
-          user_email=data;
-         });
-         $("#user_name").val(user_name);
+         FB.api('/me',function(response){
+         	user_name=response.name;
+         	user_email=response.email;
+         	$("#user_name").val(user_name);
          $("#user_email").val(user_email);
          $("#loading").hide();
          $("#modal_add").fadeIn(600);
          $("#Connect_with_facebook").fadeIn(400);
+         });
+         
+         
         }
  
  //Hide When Close is pressed
 $("[data-dismiss='modal']").click(function() {
   $("#modal_add").fadeOut();
+});
+$("#dismiss").click(function(){
+	$("#modal_add").fadeOut();
 });
 //Hide Form when Esc is pressed
         $(document).keyup(function(event) {
@@ -749,7 +744,7 @@ for($i=0;$i<sizeof($skill_options);$i++){
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Submit for Review</button>
-          <a href="#" class="btn" data-dismiss="modal" style="float: right;">Close</a>
+          <a href="#" class="btn" data-dismiss="modal" style="float: right;" id='dismiss'>Close</a>
         </div>
       </form>
     </div>
@@ -853,5 +848,3 @@ var selchb = getSelectedChbox(document.getElementById('modal_addform'));     // 
     </div>
    </body>
 </html>
-
-
