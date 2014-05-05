@@ -1,11 +1,12 @@
 <?php
 include_once "header.php";
+require "facebook/header.php";
 
 // This is used to submit new markers for review.
 // Markers won't appear on the map until they are approved.
 
-$owner_name = mysql_real_escape_string(parseInput($_POST['owner_name']));
-$owner_email = mysql_real_escape_string(parseInput($_POST['owner_email']));
+//$owner_name = mysql_real_escape_string(parseInput($_POST['owner_name']));
+//$owner_email = mysql_real_escape_string(parseInput($_POST['owner_email']));
 $title = mysql_real_escape_string(parseInput($_POST['title'])); 
 //$type = mysql_real_escape_string(parseInput($_POST['type']));
 $skills = mysql_real_escape_string(parseInputArray($_POST['skills']));  // CHANGE- AUTHOR: Hritik Vijay DATE: 1-May-2014
@@ -14,7 +15,7 @@ $uri = mysql_real_escape_string(parseInput($_POST['uri']));
 $description = mysql_real_escape_string(parseInput($_POST['description']));
 
 // validate fields
-if(empty($title) || empty($skills) || empty($address) || empty($uri) || empty($description) || empty($owner_name) || empty($owner_email)) {
+if(empty($title) || empty($skills) || empty($address) || empty($uri) || empty($description) ) {
   echo "All fields are required - please try again.";
   exit;
   
@@ -43,7 +44,7 @@ if(empty($title) || empty($skills) || empty($address) || empty($uri) || empty($d
   } else {
 
     // insert into db, wait for approval
-    $insert = mysql_query("INSERT INTO places (approved, title, type,skills, address, uri, description, owner_name, owner_email) VALUES (null, '$title', null,'$skills', '$address', '$uri', '$description', '$owner_name', '$owner_email')") or die(mysql_error());  // CHANGE- AUTHOR: Hritik Vijay DATE: 1-May-2014
+    $insert = mysql_query("INSERT INTO places (approved, title, type,skills, address, uri, description, owner_name, owner_email) VALUES (null, '$title', null,'$skills', '$address', '$uri', '$description', '$user_profile[name]', '$user_profile[email]')") or die(mysql_error());  // CHANGE- AUTHOR: Hritik Vijay DATE: 1-May-2014
 
     // geocode new submission
     $hide_geocode_output = true;

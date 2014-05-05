@@ -23,11 +23,62 @@ include_once "header.php";
     <link href="./bootstrap/css/bootstrap-responsive.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="map.css?nocache=289671982568" type="text/css" />
     <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="mobile.css" type="text/css" />
-    <script src="./scripts/jquery-1.7.1.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./scripts/jquery-1.11.1.js" type="text/javascript" charset="utf-8"></script>
     <script src="./bootstrap/js/bootstrap.js" type="text/javascript" charset="utf-8"></script>
     <script src="./bootstrap/js/bootstrap-typeahead.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript" src="./scripts/label.js"></script>
+
+<script type="text/javascript">
+//facebook Login
+
+//Initial Setup for variables
+proceed=0;
+loggedin=false;
+user_name="Not set",user_email="Not Set";
+window.fbAsyncInit = function() {
+    FB.init({
+    appId      : '1444118979163499', // replace your app id here
+    //channelUrl : '//WWW.YOUR_DOMAIN.COM/channel.html', 
+    status     : true, 
+    cookie     : true, 
+    xfbml      : true  
+    });
+};
+(function(d){
+    var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement('script'); js.id = id; js.async = true;
+    js.src = "//connect.facebook.net/en_US/all.js";
+    ref.parentNode.insertBefore(js, ref);
+}(document));
+ 
+function FBLogin(){
+  $("#loading").show();
+  FB.getLoginStatus(function(response){
+  	if(response.authResponse){
+  		loggedin=true;
+  		proceed=1;  		
+  	}
+  });
+
+ if(loggedin==false){
+   	FB.login(function(response){
+        if(response.authResponse){
+          proceed=1; 
+        }
+    },{scope:'email'});
+
+					}
+if(proceed=1){
+	$("#Connect_with_facebook").fadeOut(400);
+	fetch_username_and_email();
+}
+else
+	alert("Error Logging in");
+}
+</script>
+
 
     <script type="text/javascript">
       var map;
@@ -387,6 +438,7 @@ include_once "header.php";
   </head>
   <body>
 
+
     <!-- display error overlay if something went wrong -->
     <?php if(isset($error) && $error != NULL) echo $error; ?>
 
@@ -422,18 +474,25 @@ include_once "header.php";
           <div class="buttons">
             <a href="#modal_info" class="btn btn-large btn-info" data-toggle="modal"><i class="icon-info-sign icon-white"></i>About this Map</a>
             <?php if($sg_enabled) { ?>
-              <a href="#modal_add_choose" class="btn btn-large btn-success" data-toggle="modal"><i class="icon-plus-sign icon-white"></i>Add Something</a>
+             <!-- <a href="#modal_add_choose" class="btn btn-large btn-success" data-toggle="modal"><i class="icon-plus-sign icon-white"></i>Add Something</a> -->
+                <img src='facebook/fconnect.png' alt='Connect With Facebook' title='Connect With Facebook' id='Connect_with_facebook' onclick='FBLogin();'/> <!--JQuery Will handle click-->
+                 <img src='images/loading.gif' alt='loading' id='loading' />     
             <? } else { ?>
-              <a href="#modal_add" class="btn btn-large btn-success" data-toggle="modal"><i class="icon-plus-sign icon-white"></i>Add Something</a>
+              <!--<a href="#modal_add" class="btn btn-large btn-success" data-toggle="modal"><i class="icon-plus-sign icon-white"></i>Add Something</a>-->
+                <img src='facebook/fconnect.png' alt='Connect With Facebook' title='Connect With Facebook' id='Connect_with_facebook' onclick='FBLogin();'/> <!--JQuery Will handle click-->
+                 <img src='images/loading.gif' alt='loading' id='loading' />
             <? } ?>
           </div>
           <div class="search">
             <input type="text" name="search" id="search" placeholder="Search for companies..." data-provide="typeahead" autocomplete="off" />
+
+           
+                
+
           </div>
         </div>
       </div>
     </div>
-
     <!-- right-side gutter -->
     <div class="menu" id="menu">
       <ul class="list" id="list">
@@ -551,7 +610,7 @@ include_once "header.php";
 
 
     <!-- add something modal -->
-    <div class="modal hide" id="modal_add">
+    <div class="modal" id="modal_add" style='display:none'>
       <form action="add.php" id="modal_addform" class="form-horizontal">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">×</button>
@@ -560,18 +619,65 @@ include_once "header.php";
         <div class="modal-body">
           <div id="result"></div>
           <fieldset>
+
+      <!-- Will Be used Via F-connect --> <!-- AUTHOR: Hritik Vijay Date: 4/5/2014 -->
+    
+        <script>
+        $(document).ready(function(){
+          $("#loading").hide();
+        });
+
+        function fetch_username_and_email(){
+         
+         $.ajax({
+          type:'GET',
+          url:'facebook/fetch_details_to_show.php?info=user_name',
+          async:false
+         }).done(function(data){
+          user_name=data;
+         });
+        
+        
+         $.ajax({
+          type:'GET',
+          url:'facebook/fetch_details_to_show.php?info=user_email',
+          async:false
+         }).done(function(data){
+          user_email=data;
+         });
+         $("#user_name").val(user_name);
+         $("#user_email").val(user_email);
+         $("#loading").hide();
+         $("#modal_add").fadeIn(600);
+         $("#Connect_with_facebook").fadeIn(400);
+        }
+ 
+ //Hide When Close is pressed
+$("[data-dismiss='modal']").click(function() {
+  $("#modal_add").fadeOut();
+});
+//Hide Form when Esc is pressed
+        $(document).keyup(function(event) {
+    if(event.which === 27) {
+        $('#modal_add').fadeOut(600);
+    }
+});
+
+        </script>
             <div class="control-group">
               <label class="control-label" for="add_owner_name">Your Name</label>
               <div class="controls">
-                <input type="text" class="input-xlarge" name="owner_name" id="add_owner_name" maxlength="100">
+                <input type="text" class="input-xlarge" disabled maxlength="100" id='user_name'>
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="add_owner_email">Your Email</label>
               <div class="controls">
-                <input type="text" class="input-xlarge" name="owner_email" id="add_owner_email" maxlength="100">
+                <input type="text" class="input-xlarge" disabled maxlength="100" id='user_email'>
               </div>
             </div>
+
+
            <div class="control-group">
               <label class="control-label" for="add_title">Company Name </label>
               <div class="controls">
@@ -678,8 +784,8 @@ var selchb = getSelectedChbox(document.getElementById('modal_addform'));     // 
           //END
 
           //Get Values
-            owner_name = $form.find( '#add_owner_name' ).val(),
-            owner_email = $form.find( '#add_owner_email' ).val(),
+            //owner_name = $form.find( '#add_owner_name' ).val(),
+            //owner_email = $form.find( '#add_owner_email' ).val(),
             title = $form.find( '#add_title' ).val(),
             //type = $form.find( '#add_type' ).val(),                                   
             address = $form.find( '#add_address' ).val(),
@@ -688,7 +794,7 @@ var selchb = getSelectedChbox(document.getElementById('modal_addform'));     // 
             url = $form.attr( 'action' );
 
         // send data and get results
-        $.post( url, { owner_name: owner_name, owner_email: owner_email, title: title, skills: selchb, address: address, uri: uri, description: description },
+        $.post( url, { title: title, skills: selchb, address: address, uri: uri, description: description },
           function( data ) {
             var content = $( data ).find( '#content' );
 
@@ -745,7 +851,7 @@ var selchb = getSelectedChbox(document.getElementById('modal_addform'));     // 
         </div>
       </form>
     </div>
-
-  </body>
+   </body>
 </html>
+
 
