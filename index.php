@@ -33,7 +33,6 @@ include_once "header.php";
 //facebook Login
 
 //Initial Setup for variables
-proceed=0;
 loggedin=false;
 user_name="Not set",user_email="Not Set";
 window.fbAsyncInit = function() {
@@ -55,10 +54,10 @@ window.fbAsyncInit = function() {
  
 function FBLogin(){
   $("#loading").show();
+  $("#Connect_with_facebook").fadeOut(400);
   FB.getLoginStatus(function(response){
   	if(response.authResponse){
   		loggedin=true;
-  		$("#Connect_with_facebook").fadeOut(400);
 		fetch_username_and_email(); 
 
   	}
@@ -67,12 +66,12 @@ function FBLogin(){
  if(loggedin==false){
    	FB.login(function(response){
         if(response.authResponse){
-		$("#Connect_with_facebook").fadeOut(400);
 		fetch_username_and_email(); 
         }
     	else{
 			alert("Error Logging in");
 			 $("#loading").hide();
+			 $("#Connect_with_facebook").fadeIn(400);
 
     	}
     },{scope:'email'});
@@ -744,7 +743,7 @@ for($i=0;$i<sizeof($skill_options);$i++){
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Submit for Review</button>
-          <a href="#" class="btn" data-dismiss="modal" style="float: right;" id='dismiss'>Close</a>
+          <a href="#" class="btn" style="float: right;" onclick='$("#modal_add").fadeOut();'>Close</a>
         </div>
       </form>
     </div>
@@ -794,7 +793,7 @@ var selchb = getSelectedChbox(document.getElementById('modal_addform'));     // 
             var content = $( data ).find( '#content' );
 
             // if submission was successful, show info alert
-            if(data == "success") {
+            if(data == "success" || data == " success") {
               $("#modal_addform #result").html("We've received your submission and will review it shortly. Thanks!");
               $("#modal_addform #result").addClass("alert alert-info");
               $("#modal_addform p").css("display", "none");
