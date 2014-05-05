@@ -35,7 +35,7 @@ include_once "header.php";
 //Initial Setup for variables
 proceed=0;
 loggedin=false;
-user_name="Not set",user_email="Not Set",FBapi='';
+user_name="Not set",user_email="Not Set";
 window.fbAsyncInit = function() {
     FB.init({
     appId      : '1444118979163499', // replace your app id here
