@@ -189,6 +189,6 @@ if(isset($_POST['installer_submitted'])) {
 			</form>
 		</div> <!-- /#content -->
 	</body>
-</html>
+</html>  <!-- Comment To upload on Git -->
 
 <? exit(); ?>
